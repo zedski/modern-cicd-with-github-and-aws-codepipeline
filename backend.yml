@@ -88,6 +88,23 @@ Resources:
               - "sts:AssumeRole"
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess"
+  
+  #Sample Alarm - we will use this later to prove AWS CodePipeline Condition Gates
+  DynamoDBReadCapacityAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Sub "HighReadCapacityAlarm-${AWS::StackName}-${AWS::Region}"
+      AlarmDescription: "Alarm if DynamoDB read capacity exceeds 80% of provisioned units"
+      Namespace: "AWS/DynamoDB"
+      MetricName: "ConsumedReadCapacityUnits"
+      Dimensions:
+        - Name: "TableName"
+          Value: !Ref RoomsTable
+      Statistic: "Average"
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 4 # 80% of 5 ReadCapacityUnits
+      ComparisonOperator: "GreaterThanThreshold"
 
 Outputs:
   DynamoDBTableName:
