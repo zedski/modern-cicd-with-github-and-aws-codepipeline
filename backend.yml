@@ -32,7 +32,7 @@ Resources:
       Tags:
         - Key: "Project"
           Value: !Sub "HotelApp-${Environment}"
-          
+
   # IAM Role for App Runner to access DynamoDB
   AppRunnerInstanceRole:
     Type: AWS::IAM::Role
@@ -124,7 +124,7 @@ Resources:
               - Name: DYNAMODB_TABLE_NAME
                 Value: !Ref RoomsTable
               - Name: HOTEL_NAME
-                Value: !Ref HotelName
+                Value: !Sub ${HotelName}-${Environment}-2
         AuthenticationConfiguration:
           AccessRoleArn: !GetAtt AppRunnerECRAccessRole.Arn
       InstanceConfiguration:
