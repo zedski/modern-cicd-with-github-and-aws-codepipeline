@@ -21,9 +21,9 @@ echo "Deployment Environment: $DEPLOY_ENV"
 echo
 
 # Retrieve the App Runner service ARN that matches the deployment environment
-echo "Retrieving App Runner service ARN for environment: $DEPLOY_ENV in region: $REGION"
+echo "Retrieving App Runner service ARN for environment: $DEPLOY_ENV in region: cGION"
 SERVICE_ARN=$(aws apprunner list-services \
-    --region "$REGION" \
+    --region "$AWS_REGION" \
     --query "ServiceSummaryList[?contains(ServiceName, '${DEPLOY_ENV}')].ServiceArn" \
     --output text)
 
@@ -31,10 +31,10 @@ SERVICE_ARN=$(aws apprunner list-services \
 SERVICE_COUNT=$(echo "$SERVICE_ARN" | wc -w)
 
 if [ "$SERVICE_COUNT" -eq 0 ]; then
-    echo "No App Runner services found for environment: $DEPLOY_ENV in region: $REGION"
+    echo "No App Runner services found for environment: $DEPLOY_ENV in region: $AWS_REGION"
     exit 0
 elif [ "$SERVICE_COUNT" -gt 1 ]; then
-    echo "Error: Multiple App Runner services found for environment: $DEPLOY_ENV in region: $REGION. Please ensure only one service matches the deployment environment."
+    echo "Error: Multiple App Runner services found for environment: $DEPLOY_ENV in region: $AWS_REGION. Please ensure only one service matches the deployment environment."
     echo "Found Services:"
     echo "$SERVICE_ARN"
     exit 1
@@ -50,7 +50,7 @@ echo "=== Updating Service: $SERVICE_ARN ==="
 aws apprunner update-service \
     --service-arn "$SERVICE_ARN" \
     --source-configuration ImageRepository="{ImageIdentifier=${IMAGE_IDENTIFIER},ImageRepositoryType=ECR}" \
-    --region "$REGION"
+    --region "$AWS_REGION"
 
 echo "Update initiated for service: $SERVICE_ARN"
 echo
@@ -60,7 +60,7 @@ echo "Monitoring update status for service: $SERVICE_ARN"
 while true; do
     STATUS=$(aws apprunner describe-service \
         --service-arn "$SERVICE_ARN" \
-        --region "$REGION" \
+        --region "$AWS_REGION" \
         --query 'Service.Status' \
         --output text)
     echo "Current Status for $SERVICE_ARN: $STATUS"
